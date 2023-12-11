@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+    tests:
+        container_name: tests
+        tty: true
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - .:/code
+        working_dir: /code
+        environment:
+            MONGODB_URI: 'mongodb://mongodb/'
+        depends_on:
+            mongodb:
+                condition: service_healthy
+
+    mongodb:
+        container_name: mongodb
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017 --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
